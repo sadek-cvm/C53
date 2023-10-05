@@ -1,0 +1,46 @@
+#==========================================================================
+# Technique: Fichier CSV avec PowerShell
+#
+# Création de la structure des unités d'organisation (version 1)
+#
+# COMMENTAIRES: 
+#   Le fichier csv contient
+#   - le nom de la UO
+#   - le DistinguishedName de son parent
+#==========================================================================
+Clear-Host
+
+#-------------------------------------------------------------------------------
+$OU = "OU=FORMATION,DC=formation,DC=local"
+
+# Enlève la protection contre la suppression accidentelle
+# Si la OU n'existe pas il y aura un message d'erreur
+Set-ADOrganizationalUnit -Identity $OU `
+                         -ProtectedFromAccidentalDeletion $false
+
+# On efface la OU
+# Si la OU n'existe pas il y aura un message d'erreur
+Remove-ADOrganizationalUnit -Identity $OU `
+                            -Recursive `
+                            -Confirm:$false 
+
+#-------------------------------------------------------------------------------
+# Création de la structure des UO en utilisant le fichier CSV
+$FichierCSV = Import-Csv -Path "UO_FORMATION.csv" `
+                         -Delimiter ";"
+
+$Compte = 0
+
+Foreach ($Ligne in $FichierCSV)
+{
+  $Nom    = $Ligne.Nom
+  $Parent = $Ligne.Parent
+  
+  New-ADOrganizationalUnit -Name $Nom `
+                           -Path $Parent `
+                           -ProtectedFromAccidentalDeletion $false
+
+  $Compte++
+}
+
+Write-Host "Création de $Compte unités d'organisation."
