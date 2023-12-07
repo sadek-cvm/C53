@@ -1,0 +1,33 @@
+Clear-Host
+
+
+$nomDom = (Get-ADDomain).DistinguishedName
+$pathGroupes = "OU=GROUPES,OU=INFORMATIQUE,DC=ETU2170785,DC=local"
+
+# suprimer les groupes
+Get-ADGroup -Filter * `
+            -SearchBase $pathGroupes | Remove-ADGroup -Confirm:$false
+
+
+$FichierGroupe = "Groupes.csv"
+$ListeGroupe = Import-Csv -Path $FichierGroupe `
+                          -Delimiter ";"
+
+#-----------------------------------------------------------------------------------
+# La création des groupes se fait dans l'unité d'organisation GROUPES sous FORMATION
+#-----------------------------------------------------------------------------------
+Foreach ($Ligne in $ListeGroupe)
+{  
+  $nom         = $Ligne.Nom
+  $description = $Ligne.Description
+  $type        = $Ligne.Type
+  $etendue     = $Ligne.Etendue
+   
+  New-ADGroup -Name $nom `
+              -Description $description `
+              -GroupCategory $type `
+              -GroupScope $etendue `
+              -Path $pathGroupes
+}
+
+Write-Host "Création des groupes dans $pathGroupes" -ForegroundColor Yellow

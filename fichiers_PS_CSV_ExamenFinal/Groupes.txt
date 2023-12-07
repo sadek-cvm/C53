@@ -1,0 +1,16 @@
+Nom;Description;Type;Etendue
+GR_EMP;Groupe employées;Security;Global
+GR_GEST;Groupe gestionnaires;Security;Global
+GR_EMP_GEST;Groupe employées gestionnaires;Security;Global
+GR_CONCEPTEURS_WEB_EMP;Groupe Concepteurs WEB employées;Security;Global
+GR_CONCEPTEURS_WEB_GEST;Groupe Concepteurs WEB gestionnaires;Security;Global
+GR_PROGRAMMEURS_ANDROID_EMP;Groupe Programmeurs Android employées;Security;Global
+GR_PROGRAMMEURS_ANDROID_GEST;Groupe Programmeurs Android gestionnaires;Security;Global
+GR_PROGRAMMEURS_PYTHON_EMP;Groupe Programmeurs Python employées;Security;Global
+GR_PROGRAMMEURS_PYTHON_GEST;Groupe Programmeurs Python gestionnaires;Security;Global
+GR_TECHNICIENS_DU_RESEAU_EMP;Groupe Techniciens du réseau employées;Security;Global
+GR_TECHNICIENS_DU_RESEAU_GEST;Groupe Techniciens du réseau gestionnaires;Security;Global
+GR_TESTEURS_DE_LOGICIELS_ANDROID_EMP;Groupe Testeurs de logiciels Android employées;Security;Global
+GR_TESTEURS_DE_LOGICIELS_ANDROID_GEST;Groupe Testeurs de logiciels Android gestionnaires;Security;Global
+GR_TESTEURS_DE_LOGICIELS_PYTHON_EMP;Groupe Testeurs de logiciels Python employées;Security;Global
+GR_TESTEURS_DE_LOGICIELS_PYTHON_GEST;Groupe Testeurs de logiciels Python gestionnaires;Security;Global

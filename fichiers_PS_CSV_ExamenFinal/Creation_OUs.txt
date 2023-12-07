@@ -1,0 +1,42 @@
+Clear-Host
+
+$OU = "OU=INFORMATIQUE,DC=ETU2170785,DC=local"
+
+# Vérifier si ou existe ou pas
+$resultat = $(try {Get-ADOrganizationalUnit -Identity $OU} catch {$null})
+
+if ($resultat -ne $null){ 
+  $message = "$OU existe, donc on l'efface."
+  Write-Host $message -ForegroundColor Green
+
+  Set-ADOrganizationalUnit -Identity $OU `
+                           -ProtectedFromAccidentalDeletion $false
+
+  Remove-ADOrganizationalUnit -Identity $OU `
+                              -Recursive `
+                              -Confirm:$false
+}
+else{
+  $message = "$OU n'existe pas."
+  Write-Host $message -ForegroundColor Yellow
+}
+
+# Création des OUs
+$FichierCSV = Import-Csv -Path "OUs.csv" `
+                         -Delimiter ";"
+
+$Compte = 0
+
+Foreach ($Ligne in $FichierCSV)
+{
+  $Nom    = $Ligne.Nom
+  $Parent = $Ligne.Parent
+  
+  New-ADOrganizationalUnit -Name $Nom `
+                           -Path $Parent `
+                           -ProtectedFromAccidentalDeletion $false
+
+  $Compte++
+}
+
+Write-Host "Création de $Compte unités d'organisation."

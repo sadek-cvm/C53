@@ -1,0 +1,171 @@
+Clear-Host
+
+# enlever les utilisateur s'il existent
+$pathUtilisateurs = "OU=UTILISATEURS,OU=INFORMATIQUE,DC=ETU2170785,DC=local"
+
+Get-ADUser -Filter 'DisplayName -like "*EMP*" -or DisplayName -like "*GEST*"' `
+           -SearchBase $pathUtilisateurs | Remove-ADUser -Confirm:$false
+
+Remove-Item –path "E:\_S1_PERSO\*"
+
+function getPath {
+    param (
+        [parameter(Mandatory=$true)]
+        [int]$matricule
+    )
+
+    $path = ""
+
+    if ($matricule -ge 10000 -and $matricule -lt 20000) {
+        $path = "OU=PROGRAMMEURS_PYTHON," + $pathUtilisateurs
+        $path = if($matricule -eq 10000) {"OU=GESTIONNAIRES," + $path} else {"OU=EMPLOYES," + $path}
+    }
+    elseif ($matricule -ge 20000 -and $matricule -lt 30000) {
+        $path = "OU=PROGRAMMEURS_ANDROID," + $pathUtilisateurs
+        $path = if($matricule -eq 20000) {"OU=GESTIONNAIRES," + $path} else {"OU=EMPLOYES," + $path}
+    }
+    elseif ($matricule -ge 30000 -and $matricule -lt 40000) {
+        $path = "OU=TECHNICIENS_DU_RESEAU," + $pathUtilisateurs
+        $path = if($matricule -eq 30000) {"OU=GESTIONNAIRES," + $path} else {"OU=EMPLOYES," + $path}
+    }
+    elseif ($matricule -ge 40000 -and $matricule -lt 50000) {
+        $path = "OU=CONCEPTEURS_WEB," + $pathUtilisateurs
+        $path = if($matricule -eq 40000) {"OU=GESTIONNAIRES," + $path} else {"OU=EMPLOYES," + $path}
+    }
+    elseif ($matricule -ge 50000 -and $matricule -lt 60000) {
+        $path = "OU=TESTEURS_DE_LOGICIELS_PYTHON," + $pathUtilisateurs
+        $path = if($matricule -eq 50000) {"OU=GESTIONNAIRES," + $path} else {"OU=EMPLOYES," + $path}
+    }
+    elseif ($matricule -ge 60000 -and $matricule -lt 70000) {
+        $path = "OU=TESTEURS_DE_LOGICIELS_ANDROID," + $pathUtilisateurs
+        $path = if($matricule -eq 60000) {"OU=GESTIONNAIRES," + $path} else {"OU=EMPLOYES," + $path}
+    }
+    else{
+        throw "matricule erroné"
+    }
+
+    return $path
+}
+
+function getGroupes {
+    param (
+        [parameter(Mandatory=$true)]
+        [int]$matricule
+    )
+
+    $groupes = "GR_EMP_GEST,"
+    $groupeGest = "GR_GEST,"
+    $groupeEmp = "GR_EMP,"
+
+
+    if ($matricule -ge 10000 -and $matricule -lt 20000) {
+        if($matricule -eq 10000) {
+            $groupes = $groupes + $groupeGest + "GR_PROGRAMMEURS_PYTHON_GEST"
+        }
+        else {
+            $groupes = $groupes + $groupeEmp + "GR_PROGRAMMEURS_PYTHON_EMP"
+        }
+    }
+    elseif ($matricule -ge 20000 -and $matricule -lt 30000) {
+        if($matricule -eq 20000) {
+            $groupes = $groupes + $groupeGest + "GR_PROGRAMMEURS_ANDROID_GEST"
+        }
+        else {
+            $groupes = $groupes + $groupeEmp + "GR_PROGRAMMEURS_ANDROID_EMP"
+        }
+    }
+    elseif ($matricule -ge 30000 -and $matricule -lt 40000) {
+        if($matricule -eq 30000) {
+            $groupes = $groupes + $groupeGest + "GR_TECHNICIENS_DU_RESEAU_GEST"
+        }
+        else {
+            $groupes = $groupes + $groupeEmp + "GR_TECHNICIENS_DU_RESEAU_EMP"
+        }
+    }
+    elseif ($matricule -ge 40000 -and $matricule -lt 50000) {
+        if($matricule -eq 40000) {
+            $groupes = $groupes + $groupeGest + "GR_CONCEPTEURS_WEB_GEST"
+        }
+        else {
+            $groupes = $groupes + $groupeEmp + "GR_CONCEPTEURS_WEB_EMP"
+        }
+    }
+    elseif ($matricule -ge 50000 -and $matricule -lt 60000) {
+        if($matricule -eq 50000) {
+            $groupes = $groupes + $groupeGest + "GR_TESTEURS_DE_LOGICIELS_PYTHON_GEST"
+        }
+        else {
+            $groupes = $groupes + $groupeEmp + "GR_TESTEURS_DE_LOGICIELS_PYTHON_EMP"
+        }
+    }
+    elseif ($matricule -ge 60000 -and $matricule -lt 70000) {
+        if($matricule -eq 60000) {
+            $groupes = $groupes + $groupeGest + "GR_TESTEURS_DE_LOGICIELS_ANDROID_GEST"
+        }
+        else {
+            $groupes = $groupes + $groupeEmp + "GR_TESTEURS_DE_LOGICIELS_ANDROID_EMP"
+        }
+    }
+    else{
+        throw "matricule erroné"
+    }
+
+    return $groupes
+}
+
+$NomFichier = "Utilisateurs.csv"
+$FichierCSV = Import-Csv -Path $NomFichier `
+                         -Delimiter ";"
+
+$nomDNS = (Get-ADDomain).DnsRoot
+
+$motDePasse = "AAAaaa111"
+$mdp = ConvertTo-SecureString -AsPlainText $MotdePasse -Force
+
+$Compte = 0
+
+Foreach ($Ligne in $FichierCSV)
+{
+    $parent = getPath -matricule $Ligne.Matricule
+    $prenom = $Ligne.Prenom
+    $nom    = $Ligne.Nom
+    $code   = $Ligne.Code
+    $login  = $Ligne.Matricule
+
+    # create user
+    New-ADUser -Name $login `
+               -SamAccountName $login `
+               -UserPrincipalName "$login@$nomDNS" `
+               -Description "Je suis l'usagé $prenom $nom" `
+               -Path $parent `
+               -GivenName $prenom `
+               -Surname $nom `
+               -DisplayName "$prenom $nom - $code" `
+               -AccountPassword $mdp `
+               -PasswordNeverExpires $true `
+               -Enabled $true
+
+    # add user to groupes
+    $groupes = (getGroupes -matricule $Ligne.Matricule) -split(",")
+    Add-ADPrincipalGroupMembership -Identity $login `
+                                   -MemberOf $groupes # ("grp1", "grp2")
+
+    #create user directory
+    $cheminPerso = "E:\_S1_PERSO\$login"
+    New-Item -Path $cheminPerso `
+             -ItemType directory
+
+    #grant user access to directory
+    icacls.exe $cheminPerso /grant $login":(OI)(CI)(M)" 
+
+    Set-ADUser -Identity $login `
+               -HomeDrive "P:" `
+               -HomeDirectory $cheminPerso
+
+    
+    Write-Host "$prenom $nom - $code" -ForegroundColor Green
+     
+	$Compte++
+}
+
+Write-Host "Création de $Compte utilisateurs." -ForegroundColor Cyan
